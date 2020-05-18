@@ -297,12 +297,12 @@ function showTab(n) {
   } else {
     document.getElementById("prevBtn").style.display = "inline";
   }
-  if (n == (x.length - 1)) {
-    document.getElementById("nextBtn").remove();
-     document.getElementById("prevBtn").remove();
+   if (n == (x.length - 1)) {
+    // document.getElementById("nextBtn").innerHTML = "Submit";
+    $('#nextBtn').hide();
   } else {
+    $('#nextBtn').show();
     document.getElementById("nextBtn").innerHTML = "Next";
-  }
   //... and run a function that will display the correct step indicator:
   fixStepIndicator(n)
 }
@@ -317,11 +317,11 @@ function nextPrev(n) {
   // Increase or decrease the current tab by 1:
   currentTab = currentTab + n;
   // if you have reached the end of the form...
-  if (currentTab >= x.length) {
-    // ... the form gets submitted:
-    document.getElementById("regForm").submit();
-    return false;
-  }
+  // if (currentTab >= x.length) {
+  //   // ... the form gets submitted:
+  //   document.getElementById("regForm").submit();
+  //   return false;
+  // }
   // Otherwise, display the correct tab:
   showTab(currentTab);
 }
