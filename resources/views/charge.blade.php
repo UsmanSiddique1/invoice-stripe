@@ -127,7 +127,7 @@ button:hover {
     <label>Select Biller</label>
    
     <p><select required="required" name="biller" oninput="this.className = ''">
-        <option value="">Select</option>
+        <option value="" selected="">Select Biller</option>
         @foreach($all_biller as $biller)
         <option value="{{$biller->biller}}">{{$biller->biller}}</option>
         @endforeach
@@ -139,7 +139,7 @@ button:hover {
     <label>Select Billing Account</label>
     <div class="billing">
     <p><select required="required" name="billaccount" id="billaccount">
-        <option value="">billing account</option>
+        <option value="" selected="">Select billing account</option>
         <option value="rx">RX#</option>
         <option value="inv">Invoice#</option>
         <option value="both">RX# & Invoice#</option>
@@ -148,7 +148,17 @@ button:hover {
     </div>
     <label>Enter Phone Number</label>
     <p><input type="number" placeholder="Phone Number" oninput="this.className = ''" name="phone"></p>
-    
+    <label>Enter Amount</label>
+    <p><input type="number" placeholder="Enter Amount" oninput="this.className = ''" name="amount"></p>
+
+    <label>Select Service</label>
+   
+    <p><select required="required" name="service_name" oninput="this.className = ''">
+        <option value="" selected="">Select Service</option>
+        @foreach($services as $service)
+        <option value="{{$service->name}}">{{$service->name}}-${{$service->price}}</option>
+        @endforeach
+    </select></p>
   </div>
   <div class="tab">
     <h1 style="text-align: center;">Your Details</h1><hr>
@@ -160,7 +170,11 @@ button:hover {
     <label>Account Number (Optional)</label>
     <p><input type="text" value="0" placeholder="Billing Account Number" oninput="this.className = ''" name="billing_account_number"></p>
     <label>Zipcode</label>
-    <p><input type="text" placeholder="Your Zip" oninput="this.className = ''" name="zipcode"></p>
+    <p><input type="text" id="zip" name="zip" placeholder="Your Zip" oninput="this.className = ''" name="zipcode"></p>
+    <label>City</label>
+    <p><input type="text" id="city" name="city" placeholder="Your Zip" oninput="this.className = ''" name="zipcode"></p>
+    <label>State</label>
+    <p><input type="text" id="state" name="state" placeholder="Your Zip" oninput="this.className = ''" name="zipcode"></p>
   </div>
   <div class="tab">
   <h1 style="text-align: center; ">Stripe Billing Details</h1><hr>
@@ -173,9 +187,11 @@ button:hover {
   
                         <div class='form-row row'>
                             <div class='col-xs-12 form-group card required'>
-                                <label class='control-label'>Card Number</label> <input
+                                <label class='control-label'>Card Number</label> 
+                                <input id="cc" value="" class="form-control card-number" placeholder="1234 1234 1234 1234" onkeypress="return checkDigit(event)">
+                               <!--  <input
                                     autocomplete='off' class='form-control card-number' size='20'
-                                    type='text'>
+                                    type='text'> -->
                             </div>
                         </div>
   
@@ -297,12 +313,13 @@ function showTab(n) {
   } else {
     document.getElementById("prevBtn").style.display = "inline";
   }
-   if (n == (x.length - 1)) {
+  if (n == (x.length - 1)) {
     // document.getElementById("nextBtn").innerHTML = "Submit";
     $('#nextBtn').hide();
   } else {
     $('#nextBtn').show();
     document.getElementById("nextBtn").innerHTML = "Next";
+  }
   //... and run a function that will display the correct step indicator:
   fixStepIndicator(n)
 }
@@ -317,11 +334,7 @@ function nextPrev(n) {
   // Increase or decrease the current tab by 1:
   currentTab = currentTab + n;
   // if you have reached the end of the form...
-  // if (currentTab >= x.length) {
-  //   // ... the form gets submitted:
-  //   document.getElementById("regForm").submit();
-  //   return false;
-  // }
+  
   // Otherwise, display the correct tab:
   showTab(currentTab);
 }
@@ -396,6 +409,69 @@ $('#billaccount').change(function(){
 
     }
 });
+
+function cc_format(value) {
+  var v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '')
+  var matches = v.match(/\d{4,16}/g);
+  var match = matches && matches[0] || ''
+  var parts = []
+  for (i=0, len=match.length; i<len; i+=4) {
+    parts.push(match.substring(i, i+4))
+  }
+  if (parts.length) {
+    return parts.join(' ')
+  } else {
+    return value
+  }
+}
+
+onload = function() {
+  document.getElementById('cc').oninput = function() {
+    this.value = cc_format(this.value)
+  }
+}
+function checkDigit(event) {
+    var code = (event.which) ? event.which : event.keyCode;
+
+    if ((code < 48 || code > 57) && (code > 31)) {
+        return false;
+    }
+
+    return true;
+}
+</script>
+
+<script type="text/javascript">
+  $('#zip').keyup(function(){
+
+    // alert($(this).val());
+
+    var zip = $(this).val();
+    $.ajax({
+      type: 'POST',
+      url: "{{route('zipsearch')}}",
+      data: {
+        '_token': '{{ csrf_token() }}',
+        'zip': zip
+      },
+
+      dataType:'json',
+      success : function(data){
+
+       
+        $('#city').val(data.city);
+        $('#state').val(data.state);
+
+      },
+
+      error: function(response){
+
+        alert('response.responseJSON.message');
+      }
+
+    });
+
+  });
 </script>
 
 </body>

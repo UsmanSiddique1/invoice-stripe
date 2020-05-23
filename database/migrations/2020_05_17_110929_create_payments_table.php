@@ -18,10 +18,17 @@ class CreatePaymentsTable extends Migration
             $table->string('name');
             $table->string('email');
             $table->string('phone');
-            $table->string('zipcode');
+            $table->string('zip');
+            $table->string('city');
+            $table->string('state');
+            $table->string('status')->nullable();
+            $table->integer('amount')->nullable();
             $table->string('billing_account_number');
             $table->string('EX')->nullable();
             $table->string('Invoice')->nullable();
+            $table->string('service_name');
+            $table->integer('service_price');
+            $table->integer('total_amount');
             $table->timestamps();
         });
     }
